@@ -4,7 +4,7 @@ from flask import render_template, redirect, jsonify
 from werkzeug.security import gen_salt
 from authlib.integrations.flask_oauth2 import current_token
 from authlib.oauth2 import OAuth2Error
-from .models import db, User, OAuth2Client
+from .models import db, User, OAuth2Client, Weather
 from .oauth2 import authorization, require_oauth
 
 
@@ -127,3 +127,12 @@ def revoke_token():
 def api_me():
     user = current_token.user
     return jsonify(id=user.id, username=user.username)
+
+
+@bp.route('/api/weather')
+@require_oauth('weather')
+def api_weather():
+    user = current_token.user
+    weather = Weather.query.filter_by(id=0).first()
+    temp = weather.get_temperature()
+    return jsonify(id=user.id, username=user.username, temp=temp)

@@ -48,9 +48,20 @@ class OAuth2Token(db.Model, OAuth2TokenMixin):
     user_id = db.Column(
         db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
     user = db.relationship('User')
+    temperature = db.Column(
+        db.Integer, db.ForeignKey('weather.temperature', ondelete='CASCADE'))
+    weather = db.relationship('Weather')
 
     def is_refresh_token_active(self):
         if self.revoked:
             return False
         expires_at = self.issued_at + self.expires_in * 2
         return expires_at >= time.time()
+
+
+class Weather(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    temperature = db.Column(db.Integer)
+
+    def get_temperature(self):
+        return self.temperature
